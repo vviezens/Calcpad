@@ -1686,6 +1686,9 @@
                 <MenuItem Click="PdfButton_Click" 
                           Header="{x:Static wpf:MainWindowResources.SaveAsPDF}"/>
             </MenuItem>
+            <MenuItem x:Name="TemplateManager" Header="TemplateManager">
+                <MenuItem x:Name="TemplateManagerMenuItem" Header="Open Template Manager" Click="OpenTemplateManager_Click"/>
+            </MenuItem>
             <MenuItem Command="ApplicationCommands.Help" 
                       Header="{x:Static wpf:MainWindowResources.Help}"/>
         </Menu>

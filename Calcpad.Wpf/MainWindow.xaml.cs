@@ -237,6 +237,26 @@ namespace Calcpad.Wpf
             Execute(AppInfo.FullName);
             return true;
         }
+        /// <summary>
+        /// OpensTemplateManager WPF Window V.Viezens
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenTemplateManager_Click(object sender, RoutedEventArgs e)
+        {
+            TemplateManager templateManagerWindow = new TemplateManager();
+            templateManagerWindow.CodeLoaded += InsertCodeIntoEditor; // Event abonnieren
+            templateManagerWindow.Show();
+        }
+
+        private void InsertCodeIntoEditor(string code)
+        {
+            // Erstelle ein temporäres MenuItem mit dem geladenen Code als Tag
+            var tempMenuItem = new MenuItem { Tag = code };
+
+            // Rufe die Button_Click Methode auf, um den Code in das Editorfenster einzufügen
+            Button_Click(tempMenuItem, new RoutedEventArgs());
+        }
 
         private void TryRestoreState()
         {

@@ -1,0 +1,26 @@
+Templates:
+  - Path: 
+      - Structural Engineering
+      - Steel
+      - DE
+    Title: "Dings Template"
+    Content: |
+      f(x) = x^2
+      $Plot{f(x) @ x = -10 : 10}
+    Likes: 10
+    Validations: 2
+    Creator: "H. Mueller"
+    Authors: 
+      - "H. Mueller"
+      - "M. Mustermann"
+    CreatedDate: "01.01.2025"
+    Description: "Steel Material DIN EN 1993-1-1"
+    Version: "1.0"
+    Url: "https://TemplateServer1/Material/Timber/din_en_1995-1-1"
+    ValidatorHashes: 
+      - "hash1"
+      - "hash2"
+    ValidatorLogos: 
+      - "logo1 as base64 enc"
+      - "logo2 as base64 enc"
+    ValidatorContact: "none,contact@example.com"

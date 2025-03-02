@@ -1,0 +1,16 @@
+{
+  "Path": [ "Structural Engineering", "Timber", "DE" ],
+  "Title": "Bauholz DIN EN 384 | 2022-08",
+  "Content": "$Plot{x^2 @ x = -10 : 10}",
+  "Likes": 10,
+  "Validations": 2,
+  "Creator": "H. Mueller",
+  "Authors": [ "H. Mueller", "M. Mustermann" ],
+  "CreatedDate": "01.01.2025",
+  "Description": "Timber Material Library DIN EN 1995-1-1",
+  "Version": "1.0",
+  "Url": "https://TemplateServer1/Material/Timber/din_en_1995-1-1",
+  "ValidatorHashes": [ "hash1", "hash2" ],
+  "ValidatorLogos": [ "logo1 as base64 enc", "logo2 as base 64 enc" ],
+  "ValidatorContact": "none,contact@example.com"
+}
