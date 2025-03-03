@@ -479,9 +479,21 @@ private List<ServerPath> LoadServersFromConfig()
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+
+
         }
 
+        private void UploadLogo_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Hier Code für den Datei-Upload des Logos hinzufügen
+            MessageBox.Show("Logo-Upload noch nicht implementiert.");
+        }
 
+        private void UploadTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Hier Code für das Hochladen des Templates auf den Server hinzufügen
+            MessageBox.Show("Template-Upload noch nicht implementiert.");
+        }
 
     }
 }

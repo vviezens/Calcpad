@@ -3,128 +3,159 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Template Manager" Height="600" Width="900">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="163*"/>
-            <RowDefinition Height="27*"/>
-            <RowDefinition Height="102*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="3*" />
-        </Grid.ColumnDefinitions>
+        <TabControl>
+            <!-- Tab 1: Bestehende Ansicht -->
+            <TabItem Header="Template Loader">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="163*"/>
+                        <RowDefinition Height="27*"/>
+                        <RowDefinition Height="102*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
 
-        <!-- Linke Spalte: Baumstruktur + Serverpfade -->
-        <Grid Grid.Column="0" Margin="5,5,5,5" Grid.RowSpan="3">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="3*" />
-                <RowDefinition Height="2*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+                    <!-- Linke Spalte: Baumstruktur + Serverpfade -->
+                    <Grid Grid.Column="0" Margin="5,5,5,5" Grid.RowSpan="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="3*" />
+                            <RowDefinition Height="2*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-            <!-- Baumstruktur -->
-            <TreeView Name="TemplateTree" Grid.Row="0" Margin="5" SelectedItemChanged="TemplateTree_SelectedItemChanged"/>
+                        <TreeView Name="TemplateTree" Grid.Row="0" Margin="5" SelectedItemChanged="TemplateTree_SelectedItemChanged"/>
 
+                        <GroupBox Header="Template Server Paths" Grid.Row="1" Margin="5">
+                            <StackPanel>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="120">
+                                    <ListView x:Name="ServerListView" Margin="10" ItemsSource="{Binding serverPaths}" HorizontalAlignment="Stretch">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="Server" Width="50">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding ServerName}" IsHitTestVisible="False" Opacity="0.7" Padding="0" Width="50"/>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Header="URL" Width="120">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBox Text="{Binding ServerUrl, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Padding="0" MinWidth="115"/>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Header="Status" Width="40">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding ServerStatus}" Foreground="{Binding StatusColor}" IsHitTestVisible="False" Padding="0" Width="50"/>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Header="Kommentar" Width="100">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Padding="0" MinWidth="95"/>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </ScrollViewer>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                                    <Button Content="+" Width="30" Click="AddServer_Click"/>
+                                    <Button Content="-" Width="30" Margin="5,0,0,0" Click="RemoveServer_Click"/>
+                                    <Button Content="🔄 Aktualisieren" Width="120" Margin="10,0,0,0" Click="RefreshTemplates_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </Grid>
 
+                    <!-- Rechte Spalte: Metadaten & Vorschau -->
+                    <Grid Grid.Column="1" Margin="5,5,5,5" Grid.RowSpan="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
+                        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                            <ListView Name="MetadataList">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Property" Width="150" DisplayMemberBinding="{Binding Key}"/>
+                                        <GridViewColumn Header="Value" Width="Auto" DisplayMemberBinding="{Binding Value}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </ScrollViewer>
 
+                        <WebBrowser Name="TemplateWebViewer" Grid.Row="1" Margin="5"/>
 
-            <!-- Server-Pfad Liste -->
-            <GroupBox Header="Template Server Paths" Grid.Row="1" Margin="5">
-                <StackPanel>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="120">
-                        <ListView x:Name="ServerListView" Margin="10" ItemsSource="{Binding serverPaths}" HorizontalAlignment="Stretch">
-                            <ListView.View>
-                                <GridView x:Name="ServerGridView">
+                        <Button Name="LoadButton" Content="Load Selected Template" Grid.Row="2"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Click="LoadButton_Click" Margin="10"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
 
-                                    <!-- Server-Name (Nicht editierbar) -->
-                                    <GridViewColumn Header="Server" Width="50">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding ServerName}" IsHitTestVisible="False" Opacity="0.7" Padding="0" Width="50"/>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
+            <!-- Tab 2: Template Upload -->
+            <TabItem Header="Template Upload">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
 
-                                    <!-- URL (Editierbar) -->
-                                    <GridViewColumn Header="URL" Width="120">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBox Text="{Binding ServerUrl, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Padding="0" MinWidth="115">
-                                                    <TextBox.Width>
-                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=GridViewColumnHeader}"/>
-                                                    </TextBox.Width>
-                                                </TextBox>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
+                    <!-- Linke Hälfte: Eingabefelder -->
+                    <StackPanel Grid.Column="0" Margin="10">
+                        <Label Content="Titel:"/>
+                        <TextBox Name="TitleTextBox" Width="250"/>
 
-                                    <!-- Server Status -->
-                                    <GridViewColumn Header="Status" Width="40">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding ServerStatus}" Foreground="{Binding StatusColor}" IsHitTestVisible="False" Padding="0" Width="50"/>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
+                        <Label Content="Creator:"/>
+                        <TextBox Name="CreatorTextBox" Width="250"/>
 
+                        <Label Content="Author:"/>
+                        <TextBox Name="AuthorTextBox" Width="250"/>
 
-                                    <!-- Kommentar (Editierbar) -->
-                                    <GridViewColumn Header="Kommentar" Width="100">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Padding="0" MinWidth="95">
-                                                    <TextBox.Width>
-                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=GridViewColumnHeader}"/>
-                                                    </TextBox.Width>
-                                                </TextBox>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
+                        <Label Content="Description:"/>
+                        <TextBox Name="DescriptionTextBox" Width="250" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
 
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                        <Label Content="CreationDate:"/>
+                        <TextBox Name="CreationDateTextBox" Width="250" IsReadOnly="True" />
 
-                    </ScrollViewer>
+                        <Label Content="ValidatorHash:"/>
+                        <TextBox Name="ValidatorHashTextBox" Width="250"/>
 
-                    <!-- Steuerungsbuttons für Serververwaltung -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
-                        <Button Content="+" Width="30" Click="AddServer_Click"/>
-                        <Button Content="-" Width="30" Margin="5,0,0,0" Click="RemoveServer_Click"/>
-                        <Button Content="🔄 Aktualisieren" Width="120" Margin="10,0,0,0" Click="RefreshTemplates_Click"/>
+                        <Label Content="ValidatorContactAdress:"/>
+                        <TextBox Name="ValidatorContactTextBox" Width="250"/>
+
+                        <Label Content="ValidatorLogo:"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Name="ValidatorLogoImage" Width="80" Height="80" Margin="5" />
+                            <Button Content="Upload" Click="UploadLogo_Click"/>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </GroupBox>
-        </Grid>
 
-        <!-- Rechte Spalte: Metadaten & Vorschau -->
-        <Grid Grid.Column="1" Margin="5,5,5,5" Grid.RowSpan="3">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="2*" />
-                <RowDefinition Height="1*" />
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+                    <!-- Rechte Hälfte: RichTextEditor -->
+                    <Grid Grid.Column="1" Margin="10">
+                        <RichTextBox Name="TemplateContentEditor" Height="350" VerticalScrollBarVisibility="Auto">
+                            <FlowDocument>
+                                <Paragraph>Hier können Sie den Inhalt des Templates bearbeiten...</Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
 
-            <!-- Metadaten-Ansicht -->
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                <ListView Name="MetadataList">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Property" Width="150" DisplayMemberBinding="{Binding Key}"/>
-                            <GridViewColumn Header="Value" Width="Auto" DisplayMemberBinding="{Binding Value}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </ScrollViewer>
-
-            <!-- Vorschau-Fenster -->
-            <WebBrowser Name="TemplateWebViewer" Grid.Row="1" Margin="5"/>
-
-            <!-- Load Template Button -->
-            <Button Name="LoadButton" Content="Load Selected Template" Grid.Row="2"
-                    HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Click="LoadButton_Click" Margin="10"/>
-
-        </Grid>
+                        <!-- Upload-Button -->
+                        <Button Name="UploadButton" Content="Upload Template"
+                                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                Width="150" Height="30" Margin="10"
+                                Click="UploadTemplate_Click"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
