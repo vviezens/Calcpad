@@ -68,7 +68,7 @@
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
                                     <Button Content="+" Width="30" Click="AddServer_Click"/>
                                     <Button Content="-" Width="30" Margin="5,0,0,0" Click="RemoveServer_Click"/>
-                                    <Button Content="🔄 Aktualisieren" Width="120" Margin="10,0,0,0" Click="RefreshTemplates_Click"/>
+                                    <Button Content="🔄 refresh servers" Width="120" Margin="10,0,0,0" Click="RefreshTemplates_Click"/>
                                 </StackPanel>
                             </StackPanel>
                         </GroupBox>

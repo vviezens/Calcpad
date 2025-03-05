@@ -501,13 +501,13 @@ private List<ServerPath> LoadServersFromConfig()
         private void UploadLogo_Click(object sender, RoutedEventArgs e)
         {
             // TODO: Hier Code für den Datei-Upload des Logos hinzufügen
-            MessageBox.Show("Logo-Upload noch nicht implementiert.");
+            MessageBox.Show("Logo-Upload not implemented right now");
         }
 
         private void UploadTemplate_Click(object sender, RoutedEventArgs e)
         {
             // TODO: Hier Code für das Hochladen des Templates auf den Server hinzufügen
-            MessageBox.Show("Template-Upload noch nicht implementiert.");
+            MessageBox.Show("Template-Upload not implemented right now.");
         }
 
         private void LoadPublicKey()
@@ -562,7 +562,7 @@ private List<ServerPath> LoadServersFromConfig()
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Fehler beim Generieren des Schlüssels: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error while generating the key: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -601,7 +601,7 @@ private List<ServerPath> LoadServersFromConfig()
             {
                 if (!File.Exists(PrivateKeyPath))
                 {
-                    MessageBox.Show("Es wurde noch kein Private Key generiert.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("A private Key has not been generated", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -622,12 +622,12 @@ private List<ServerPath> LoadServersFromConfig()
                     EnableUI();
 
                     // Erfolgsnachricht anzeigen
-                    MessageBox.Show("Private Key wurde erfolgreich gespeichert!", "Erfolg", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Private key has been stored sucessfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Fehler beim Speichern des Private Keys: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error while storing privae key: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -638,7 +638,7 @@ private List<ServerPath> LoadServersFromConfig()
             {
                 // Wenn der Button deaktiviert ist, verhindere das Schließen des Fensters
                 e.Cancel = true;
-                MessageBox.Show("Bitte speichern Sie den Private Key, bevor Sie das Fenster schließen.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please store private key before closing this window!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -665,28 +665,28 @@ private List<ServerPath> LoadServersFromConfig()
             try
             {
                 // Zeige den Ordnerpfad in einer MessageBox an
-                MessageBox.Show("Überprüfe Ordnerpfad: " + folderPath, "Ordnerpfad", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Check folderpath: " + folderPath, "Folderpath", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 // Wenn der Ordner noch nicht existiert, erstelle ihn
                 if (!Directory.Exists(folderPath))
                 {
-                    MessageBox.Show("Ordner existiert nicht, er wird jetzt erstellt...", "Ordner erstellen", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("folder does not exist, so it will be created...", "create folder", MessageBoxButton.OK, MessageBoxImage.Information);
                     Directory.CreateDirectory(folderPath); // Erstellt den Ordner und alle notwendigen übergeordneten Ordner
-                    MessageBox.Show("Ordner wurde erfolgreich erstellt: " + folderPath, "Ordner erstellt", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("folder was creaded successfully: " + folderPath, "folder created", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Ordner existiert bereits: " + folderPath, "Ordner vorhanden", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("folder already exists: " + folderPath, "folder exists", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 // Schreibe den öffentlichen Schlüssel in die Datei
                 File.WriteAllText(PublicKeyPath, publicKeyContent);
-                MessageBox.Show("Die Datei wurde gespeichert: " + PublicKeyPath, "Datei gespeichert", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("the file was stored: " + PublicKeyPath, "files stored", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 // Fange alle Fehler ab und zeige sie in einer MessageBox an
-                MessageBox.Show("Fehler beim Erstellen des Ordners oder beim Schreiben der Datei: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error while creating folders or writing the file: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -710,17 +710,17 @@ private List<ServerPath> LoadServersFromConfig()
                     GenerateKeyPairButton.IsEnabled = false;
                     SavePrivateKeyButton.IsEnabled = false;
 
-                    MessageBox.Show("Public Key wurde erfolgreich geladen.", "Public Key geladen", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("public key has been loaded succsssfully.", "public key loaded", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Fehler beim Laden des Public Keys: {ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"error while loading public key: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
                 // Falls die Datei nicht existiert
-                ValidatorHashTextBox.Text = "Kein Public Key gefunden. Generieren Sie einen neuen Key.";
+                ValidatorHashTextBox.Text = "public key not found pleas generate new one.";
                 PublicKeyTextBox.Text = string.Empty;
                 GenerateKeyPairButton.IsEnabled = true;
                 SavePrivateKeyButton.IsEnabled = true;
