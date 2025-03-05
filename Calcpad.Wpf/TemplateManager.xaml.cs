@@ -630,7 +630,7 @@ private List<ServerPath> LoadServersFromConfig()
                 MessageBox.Show("Error while storing privae key: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
+        /*
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // Überprüfe, ob der private Schlüssel gespeichert wurde
@@ -641,7 +641,7 @@ private List<ServerPath> LoadServersFromConfig()
                 MessageBox.Show("Please store private key before closing this window!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
-
+        */
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // Überprüfe, ob der private Schlüssel existiert
@@ -710,7 +710,7 @@ private List<ServerPath> LoadServersFromConfig()
                     GenerateKeyPairButton.IsEnabled = false;
                     SavePrivateKeyButton.IsEnabled = false;
 
-                    MessageBox.Show("public key has been loaded succsssfully.", "public key loaded", MessageBoxButton.OK, MessageBoxImage.Information);
+                    //MessageBox.Show("public key has been loaded succsssfully.", "public key loaded", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
@@ -726,6 +726,25 @@ private List<ServerPath> LoadServersFromConfig()
                 SavePrivateKeyButton.IsEnabled = true;
             }
         }
+
+        private void OpenExplorer_Click(object sender, RoutedEventArgs e)
+        {
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Calcpad");
+
+            try
+            {
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+                System.Diagnostics.Process.Start("explorer.exe", folderPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error while opening public key folder: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
 
 

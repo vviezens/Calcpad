@@ -82,12 +82,26 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Grid.Row="0">
                             <ListView Name="MetadataList">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="Property" Width="150" DisplayMemberBinding="{Binding Key}"/>
-                                        <GridViewColumn Header="Value" Width="Auto" DisplayMemberBinding="{Binding Value}"/>
+                                        <GridViewColumn Header="Value" Width="220" DisplayMemberBinding="{Binding Value}"/>
+                                        <GridViewColumn Header="Actions" Width="110">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <!--<Button Content="👍" Width="30" Click="LikeTemplate_Click" Visibility="{Binding IsLikeButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>-->
+                                                        <!--<Button Content="✅" Width="30" Click="ValidateTemplate_Click" Visibility="{Binding IsValidateButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>-->
+                                                        <!--<Button Content="⚠️" Width="30" Click="MarkAsDeprecated_Click" Visibility="{Binding IsDeprecatedButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>-->
+                                                        <Button Content="👍" Width="30" />
+                                                        <Button Content="✅" Width="30" />
+                                                        <Button Content="⚠️" Width="30" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
                                     </GridView>
                                 </ListView.View>
                             </ListView>
@@ -127,7 +141,7 @@
                         <Label Content="CreationDate:"/>
                         <TextBox Name="CreationDateTextBox" Width="250" IsReadOnly="True" />
 
-                        <Label Content="ValidatorHash:"/>
+                        <Label Content="ValidatorPublicKey:"/>
                         <TextBox Name="ValidatorHashTextBox" Width="250" 
          IsReadOnly="True" 
          Foreground="Black" 
@@ -163,7 +177,6 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <!-- Tab 3: Template Upload -->
             <TabItem Header="My Identity">
                 <Grid Margin="20">
                     <Grid.RowDefinitions>
@@ -173,21 +186,21 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-
                     <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Label Content="Public Key:"/>
-                        <TextBox Name="PublicKeyTextBox" Width="350" Height="100" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"/>
+                        <!-- Public Key Label + Button in einer Zeile -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Label Content="Public Key:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <Button Name="OpenExplorerButton" Content="📂 Open public key folder" Click="OpenExplorer_Click" Width="150"/>
+                        </StackPanel>
+
+                        <TextBox Name="PublicKeyTextBox" Width="350" Height="100" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" Margin="0,5,0,10"/>
 
                         <Button Name="GenerateKeyPairButton" Content="Generate Key pair" Click="GenerateKeyPair_Click" Width="200" Margin="10"/>
 
                         <Button Name="SavePrivateKeyButton" Content="Save private Key" Click="SavePrivateKey_Click" Width="200" Margin="10"/>
-
-
                     </StackPanel>
-
                 </Grid>
             </TabItem>
-
 
         </TabControl>
     </Grid>
