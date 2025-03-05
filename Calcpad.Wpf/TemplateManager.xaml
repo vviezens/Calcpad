@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Template Manager" Height="600" Width="900">
     <Grid>
-        <TabControl>
+        <TabControl x:Name="TabControl">
             <!-- Tab 1: Bestehende Ansicht -->
             <TabItem Header="Template Loader">
                 <Grid>
@@ -128,7 +128,14 @@
                         <TextBox Name="CreationDateTextBox" Width="250" IsReadOnly="True" />
 
                         <Label Content="ValidatorHash:"/>
-                        <TextBox Name="ValidatorHashTextBox" Width="250"/>
+                        <TextBox Name="ValidatorHashTextBox" Width="250" 
+         IsReadOnly="True" 
+         Foreground="Black" 
+         Background="LightGray" 
+         Text="Please generate public key in Tab 'My Identity'" />
+
+
+
 
                         <Label Content="ValidatorContactAdress:"/>
                         <TextBox Name="ValidatorContactTextBox" Width="250"/>
@@ -156,6 +163,32 @@
                     </Grid>
                 </Grid>
             </TabItem>
+            <!-- Tab 3: Template Upload -->
+            <TabItem Header="My Identity">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Label Content="Public Key:"/>
+                        <TextBox Name="PublicKeyTextBox" Width="350" Height="100" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"/>
+
+                        <Button Name="GenerateKeyPairButton" Content="Generate Key pair" Click="GenerateKeyPair_Click" Width="200" Margin="10"/>
+
+                        <Button Name="SavePrivateKeyButton" Content="Save private Key" Click="SavePrivateKey_Click" Width="200" Margin="10"/>
+
+
+                    </StackPanel>
+
+                </Grid>
+            </TabItem>
+
+
         </TabControl>
     </Grid>
 </Window>

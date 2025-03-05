@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -6,6 +7,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,10 +16,19 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+
+
+
 namespace Calcpad.Wpf
 {
     public partial class TemplateManager : Window
     {
+
+        private readonly string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Calcpad");
+        private readonly string publicKeyFileName = "public_key.pem";
+        private readonly string PublicKeyPath = "";
+
+        private const string PrivateKeyPath = "private_key.pem";
         public event Action<string> CodeLoaded;
         private ObservableCollection<ServerPath> serverPaths = new ObservableCollection<ServerPath>();
         //private Dictionary<string, TreeViewItem> serverNodes = new Dictionary<string, TreeViewItem>();
@@ -33,7 +45,10 @@ namespace Calcpad.Wpf
             ServerListView.ItemsSource = serverPaths;
             TemplateTree.ItemsSource = TemplateTreeItems; // Setzt ItemsSource für TreeView
             RefreshAllServers(); // Lädt Server-Status + Templates direkt beim Start
-            
+            PublicKeyPath = Path.Combine(folderPath, publicKeyFileName);
+            LoadPublicKeyIfExists();
+
+
         }
 
 private List<ServerPath> LoadServersFromConfig()
@@ -494,6 +509,227 @@ private List<ServerPath> LoadServersFromConfig()
             // TODO: Hier Code für das Hochladen des Templates auf den Server hinzufügen
             MessageBox.Show("Template-Upload noch nicht implementiert.");
         }
+
+        private void LoadPublicKey()
+        {
+            if (File.Exists(PublicKeyPath))
+            {
+                string publicKey = File.ReadAllText(PublicKeyPath);
+                ValidatorHashTextBox.Text = publicKey;
+            }
+            else
+            {
+                ValidatorHashTextBox.Text = "Please generate public key in Tab 'My Identity'";
+            }
+
+            // Immer grau und nicht editierbar
+            ValidatorHashTextBox.Foreground = Brushes.Black;
+            ValidatorHashTextBox.Background = Brushes.LightGray;
+        }
+
+        private void GenerateKeyPair_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using (RSA rsa = RSA.Create(2048))
+                {
+                    string privateKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
+                    string publicKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
+
+                    // Speichere den öffentlichen Schlüssel
+                    SavePublicKey(publicKey);
+
+                    // Speichere den privaten Schlüssel
+                    File.WriteAllText(PrivateKeyPath, privateKey);
+
+                    // Speichere den öffentlichen Schlüssel
+                    File.WriteAllText(PublicKeyPath, publicKey);
+
+                    // Update die Textfelder mit dem öffentlichen Schlüssel
+                    PublicKeyTextBox.Text = publicKey;
+                    ValidatorHashTextBox.Text = publicKey;
+
+                    // Update die Styles der Textfelder
+                    ValidatorHashTextBox.Foreground = Brushes.Black;
+                    ValidatorHashTextBox.Background = Brushes.LightGray;
+
+                    // Deaktiviere den Button "Generate Key pair"
+                    GenerateKeyPairButton.IsEnabled = false;
+
+                    // Rufe die Methode auf, um den privaten Schlüssel zu speichern und die Nachricht zu zeigen
+                    //SavePrivateKeyAndShowMessage(privateKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler beim Generieren des Schlüssels: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+
+        private void DisableUI()
+        {
+            // Deaktiviere alle Tabs
+            TabControl.IsEnabled = false;
+
+            // Deaktiviere den Schließen-Button
+            WindowStyle = WindowStyle.None;
+            ResizeMode = ResizeMode.NoResize;
+
+            // Deaktiviere den Button "Save private Key"
+            SavePrivateKeyButton.IsEnabled = false;
+        }
+
+        private void EnableUI()
+        {
+            // Aktiviert alle Tabs und Buttons
+            TabControl.IsEnabled = true;
+
+            // Erlaube das Schließen des Fensters
+            WindowStyle = WindowStyle.SingleBorderWindow;
+            ResizeMode = ResizeMode.CanResize;
+
+            // Deaktiviere den Button "Save private Key" nach dem Speichern
+            SavePrivateKeyButton.IsEnabled = false;
+        }
+
+
+        private void SavePrivateKey_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!File.Exists(PrivateKeyPath))
+                {
+                    MessageBox.Show("Es wurde noch kein Private Key generiert.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                string privateKey = File.ReadAllText(PrivateKeyPath);
+
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    FileName = "private_key.pem",
+                    Filter = "PEM files (*.pem)|*.pem|All files (*.*)|*.*"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    // Speichern des privaten Schlüssels in der gewählten Datei
+                    File.WriteAllText(saveFileDialog.FileName, privateKey);
+
+                    // Setze die UI zurück
+                    EnableUI();
+
+                    // Erfolgsnachricht anzeigen
+                    MessageBox.Show("Private Key wurde erfolgreich gespeichert!", "Erfolg", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler beim Speichern des Private Keys: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // Überprüfe, ob der private Schlüssel gespeichert wurde
+            if (SavePrivateKeyButton.IsEnabled == false)
+            {
+                // Wenn der Button deaktiviert ist, verhindere das Schließen des Fensters
+                e.Cancel = true;
+                MessageBox.Show("Bitte speichern Sie den Private Key, bevor Sie das Fenster schließen.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Überprüfe, ob der private Schlüssel existiert
+            if (File.Exists(PrivateKeyPath))
+            {
+                EnableUI();
+            }
+            else
+            {
+                DisableUI();
+            }
+        }
+
+
+
+        public void SavePublicKey(string publicKeyContent)
+        {
+            // Der Ordnerpfad, der das Verzeichnis enthält, aber nicht die Datei (public_key.pem)
+            string folderPath = Path.GetDirectoryName(PublicKeyPath);
+
+            try
+            {
+                // Zeige den Ordnerpfad in einer MessageBox an
+                MessageBox.Show("Überprüfe Ordnerpfad: " + folderPath, "Ordnerpfad", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Wenn der Ordner noch nicht existiert, erstelle ihn
+                if (!Directory.Exists(folderPath))
+                {
+                    MessageBox.Show("Ordner existiert nicht, er wird jetzt erstellt...", "Ordner erstellen", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Directory.CreateDirectory(folderPath); // Erstellt den Ordner und alle notwendigen übergeordneten Ordner
+                    MessageBox.Show("Ordner wurde erfolgreich erstellt: " + folderPath, "Ordner erstellt", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Ordner existiert bereits: " + folderPath, "Ordner vorhanden", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
+                // Schreibe den öffentlichen Schlüssel in die Datei
+                File.WriteAllText(PublicKeyPath, publicKeyContent);
+                MessageBox.Show("Die Datei wurde gespeichert: " + PublicKeyPath, "Datei gespeichert", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                // Fange alle Fehler ab und zeige sie in einer MessageBox an
+                MessageBox.Show("Fehler beim Erstellen des Ordners oder beim Schreiben der Datei: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadPublicKeyIfExists()
+        {
+            // Prüfen, ob die Datei existiert
+            if (File.Exists(PublicKeyPath))
+            {
+                try
+                {
+                    // Lade den Inhalt der Datei
+                    string publicKey = File.ReadAllText(PublicKeyPath);
+
+                    // Fülle das Textfeld "ValidatorHash" im Tab "Template Upload"
+                    ValidatorHashTextBox.Text = publicKey;
+
+                    // Fülle das Textfeld "Public Key" im Tab "My Identity"
+                    PublicKeyTextBox.Text = publicKey;
+
+                    // Deaktiviere die Buttons im Tab "My Identity"
+                    GenerateKeyPairButton.IsEnabled = false;
+                    SavePrivateKeyButton.IsEnabled = false;
+
+                    MessageBox.Show("Public Key wurde erfolgreich geladen.", "Public Key geladen", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Fehler beim Laden des Public Keys: {ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                // Falls die Datei nicht existiert
+                ValidatorHashTextBox.Text = "Kein Public Key gefunden. Generieren Sie einen neuen Key.";
+                PublicKeyTextBox.Text = string.Empty;
+                GenerateKeyPairButton.IsEnabled = true;
+                SavePrivateKeyButton.IsEnabled = true;
+            }
+        }
+
+
+
+
 
     }
 }
