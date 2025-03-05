@@ -133,56 +133,7 @@ private List<ServerPath> LoadServersFromConfig()
             }
         }
 
-        /*
-        private async Task LoadTemplatesFromServer(ServerPath server)
-        {
-            try
-            {
-                if (server.ServerStatus != "ON")
-                {
-                    Console.WriteLine($"Skip server {server.ServerUrl}, because it is offline.");
-                    return;
-                }
-
-                Console.WriteLine($"Load Templates from {server.ServerUrl}...");
-                var client = new TemplateClient();
-                List<Template> templates = await client.GetTemplatesAsync($"{server.ServerUrl}/api/templates");
-
-                if (templates.Count == 0) return;
-
-                var existingNode = TemplateTreeItems.FirstOrDefault(node => node.Header.ToString() == server.ServerUrl);
-                if (existingNode != null)
-                {
-                    TemplateTreeItems.Remove(existingNode);
-                }
-
-                var serverNode = new TreeViewItem { Header = server.ServerUrl, IsExpanded = true };
-                TemplateTreeItems.Add(serverNode);
-                serverNodes[server.ServerUrl] = new Dictionary<string, TreeViewItem> { { server.ServerUrl, serverNode } };
-
-                foreach (var template in templates)
-                {
-                    //AddTemplateToTree(server.ServerUrl, template.Path, template.Title, template.Content);
-                    //AddTemplateToTree(server.ServerUrl, template.Path, template.Title, template.Content, template);
-                    //AddTemplateToTree(server.ServerUrl, template.Path, template.Title, template.Content, template);
-                    AddTemplateToTree(server.ServerUrl, template.Path, template);
-
-                }
-
-                // expand the tree view
-                ExpandAllNodes(serverNode);
-
-                Console.WriteLine($"templates updated for {server.ServerUrl}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"error while loading template form {server.ServerUrl}: {ex.Message}");
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        */
-        
+     
         private async Task LoadTemplatesFromServer(ServerPath server)
         {
             try
@@ -265,38 +216,7 @@ private List<ServerPath> LoadServersFromConfig()
             }
         }
 
-        /*
-        private void AddTemplateToTree(string serverUrl, List<string> pathList, Template template)
-        {
-            if (!serverNodes.ContainsKey(serverUrl))
-            {
-                var serverNode = new TreeViewItem { Header = serverUrl, Tag = null };
-                TemplateTree.Items.Add(serverNode);
-                serverNodes[serverUrl] = new Dictionary<string, TreeViewItem> { { serverUrl, serverNode } };
-            }
-
-            var currentNode = serverNodes[serverUrl][serverUrl];
-            string currentPath = serverUrl;
-
-            foreach (var pathPart in pathList)
-            {
-                currentPath += $"/{pathPart}";
-                if (!serverNodes[serverUrl].ContainsKey(currentPath))
-                {
-                    var newNode = new TreeViewItem { Header = pathPart, Tag = null };
-                    currentNode.Items.Add(newNode);
-                    serverNodes[serverUrl][currentPath] = newNode;
-                }
-                currentNode = serverNodes[serverUrl][currentPath];
-            }
-
-            // set whole template as tag!
-            var titleNode = new TreeViewItem { Header = template.Title, Tag = template };
-            currentNode.Items.Add(titleNode);
-        }
-        */
-
-        private void AddTemplateToTree(string serverUrl, List<string> pathList, Template template)
+          private void AddTemplateToTree(string serverUrl, List<string> pathList, Template template)
         {
             if (!serverNodes.ContainsKey(serverUrl))
             {
@@ -338,20 +258,32 @@ private List<ServerPath> LoadServersFromConfig()
             // Dictionary with all metadata
             var properties = new Dictionary<string, string>
     {
-        //{ "Path", string.Join(" > ", template.Path) }, // Array zu String umwandeln
-        { "Title", template.Title },
-        //{ "Content", template.Content },
-        { "Likes", template.Likes.ToString() },
-        { "Validations", template.Validations.ToString() },
-        { "Creator", template.Creator },
-        //{ "Authors", string.Join(", ", template.Authors) }, // Liste zu String
-        { "CreatedDate", template.CreatedDate },
-        { "Description", template.Description },
+        //{ "Title", template.Title },
+        //{ "Likes", template.Likes.ToString() },
+        //{ "Validations", template.Validations.ToString() },
+        //{ "Creator", template.Creator },
+        //{ "CreatedDate", template.CreatedDate },
+        //{ "Url", template.Url },
+        { "id", template.Id },
+        { "Template_name", template.Template_name },
         { "Version", template.Version },
-        { "Url", template.Url },
-        //{ "ValidatorHashes", string.Join(", ", template.ValidatorHashes) },
-        //{ "ValidatorLogos", string.Join(", ", template.ValidatorLogos) },
-        //{ "ValidatorContact", template.ValidatorContact }
+        { "Description", template.Description },
+        { "Author_name", template.Author_name },
+        { "Author_public_key", template.Author_public_key },
+        { "Created_at", template.Created_at },
+        { "Updated_at", template.Updated_at },
+        { "Tags", Convert.ToString(template.Tags) },
+        { "Deprecated", template.Deprecated},
+        { "Deprecation_total_votes", Convert.ToString(template.Deprecation_total_votes) },
+        { "Deprecation_total_votes_needed", Convert.ToString(template.Deprecation_votes_needed) },
+        { "User_votes_user_ids", Convert.ToString(template.User_votes_user_ids) },
+        { "User_votes_user_ids_weight", Convert.ToString(template.User_votes_user_ids_weight) },
+        { "Likes_total", Convert.ToString(template.Likes_total) },
+        { "Likes_users", Convert.ToString(template.Likes_users) },
+        { "Validation_total", Convert.ToString(template.Validation_total)},
+        { "Validation_user_ids", Convert.ToString(template.Validation_user_ids)},
+        { "Validation_signatures", Convert.ToString(template.Validation_signatures)},
+        { "Hash", template.Hash },
     };
 
             foreach (var property in properties)

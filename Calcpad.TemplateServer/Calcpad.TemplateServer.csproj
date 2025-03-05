@@ -15,16 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\templates\mytemplate3.json">
+    <Content Update="wwwroot\templates\mytemplate4.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="wwwroot\templates\mytemplate1.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Update="wwwroot\templates\mytemplate2.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\templates\template1.yaml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
