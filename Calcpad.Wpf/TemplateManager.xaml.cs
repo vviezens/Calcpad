@@ -893,6 +893,62 @@ private List<ServerPath> LoadServersFromConfig()
             }
         }
 
+        private void EscapeTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            if (TemplateInput == null || string.IsNullOrWhiteSpace(TemplateInput.Text))
+            {
+                MessageBox.Show("Please enter a template to escape.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string escapedTemplate = EscapeForJson(TemplateInput.Text);
+            EscapedTemplateOutput.Text = escapedTemplate;
+        }
+
+        private void CopyEscapedTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(EscapedTemplateOutput.Text))
+            {
+                MessageBox.Show("There is no escaped template to copy.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            Clipboard.SetText(EscapedTemplateOutput.Text);
+            MessageBox.Show("Escaped template copied to clipboard!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private string EscapeForJson(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return "";
+
+            StringBuilder escaped = new StringBuilder();
+            foreach (char c in input)
+            {
+                switch (c)
+                {
+                    case '\\': escaped.Append("\\\\"); break;
+                    case '\"': escaped.Append("\\\""); break;
+                    case '\b': escaped.Append("\\b"); break;
+                    case '\f': escaped.Append("\\f"); break;
+                    case '\n': escaped.Append("\\n"); break;
+                    case '\r': escaped.Append("\\r"); break;
+                    case '\t': escaped.Append("\\t"); break;
+                    default:
+                        if (char.IsControl(c))
+                        {
+                            escaped.AppendFormat("\\u{0:X4}", (int)c);
+                        }
+                        else
+                        {
+                            escaped.Append(c);
+                        }
+                        break;
+                }
+            }
+            return escaped.ToString();
+        }
+
 
 
 

@@ -194,6 +194,26 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
+            <TabItem Header="Template Escaper">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Content="Paste your template below:" Margin="10"/>
+                    <TextBox Name="TemplateInput" Grid.Row="1" Margin="10" Height="120" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+
+                    <Button Name="EscapeButton" Grid.Row="2" Content="Escape for JSON" Margin="10" Width="150" HorizontalAlignment="Left" Click="EscapeTemplate_Click"/>
+
+                    <Label Content="Escaped Template:" Grid.Row="3" Margin="10"/>
+                    <TextBox Name="EscapedTemplateOutput" Grid.Row="3" Margin="10" Height="120" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
+
+                    <Button Name="CopyEscapedButton" Grid.Row="3" Content="Copy to Clipboard" Margin="10" Width="150" HorizontalAlignment="Right" Click="CopyEscapedTemplate_Click"/>
+                </Grid>
+            </TabItem>
 
         </TabControl>
     </Grid>
