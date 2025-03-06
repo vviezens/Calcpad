@@ -36,6 +36,10 @@
     <None Remove="resources\flags\**" />
     <Page Remove="resources\flags\**" />
   </ItemGroup>
+	
+  <ItemGroup>
+    <Compile Remove="Template.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <COMReference Include="SHDocVw">
@@ -59,6 +63,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Calcpad.core\Calcpad.Core.csproj" />
     <ProjectReference Include="..\Calcpad.OpenXml\Calcpad.OpenXml.csproj" />
+    <ProjectReference Include="..\Calcpad.Shared\Calcpad.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

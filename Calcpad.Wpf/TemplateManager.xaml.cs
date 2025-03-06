@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-
+using Calcpad.Shared;
 
 
 
@@ -590,7 +590,7 @@ private List<ServerPath> LoadServersFromConfig()
                     return;
                 }
 
-                // Prüfen, ob der User bereits geliked hat
+                // Prüfen, ob der Benutzer bereits geliked hat
                 if (template.Likes_users.Contains(userPublicKey))
                 {
                     MessageBox.Show("You have already liked this template!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -601,15 +601,8 @@ private List<ServerPath> LoadServersFromConfig()
                 template.Likes_total++;
                 template.Likes_users.Add(userPublicKey);
 
-                // Sicherstellen, dass Likes_total == Likes_users.Count
-                if (template.Likes_total != template.Likes_users.Count)
-                {
-                    MessageBox.Show("Data inconsistency detected! Possible corruption.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
                 // Server-Update mit TemplateServerUpdate
-                var serverUpdater = new TemplateServerUpdate("https://your-template-server.com"); // TODO: URL anpassen
+                var serverUpdater = new TemplateServerUpdate("https://your-template-server.com"); // URL anpassen
                 bool success = await serverUpdater.LikeTemplate(template.Id, userPublicKey);
 
                 if (success)
@@ -629,20 +622,21 @@ private List<ServerPath> LoadServersFromConfig()
         }
 
         private void UpdateLikeButtonUI(TreeViewItem selectedNode, string userPublicKey)
-{
-    if (selectedNode.Header is StackPanel stackPanel)
-    {
-        foreach (var child in stackPanel.Children)
         {
-            if (child is Button likeButton && likeButton.Content.ToString() == "👍")
+            if (selectedNode.Header is StackPanel stackPanel)
             {
-                likeButton.Background = Brushes.LightGreen;
-                likeButton.ToolTip = "You already liked this template.";
-                break;
+                foreach (var child in stackPanel.Children)
+                {
+                    if (child is Button likeButton && likeButton.Content.ToString() == "👍")
+                    {
+                        likeButton.Background = Brushes.LightGreen;
+                        likeButton.ToolTip = "You already liked this template.";
+                        break;
+                    }
+                }
             }
         }
-    }
-}
+
 
 
 

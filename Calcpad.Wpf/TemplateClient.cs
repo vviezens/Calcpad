@@ -9,6 +9,8 @@ using YamlDotNet.Core;
 using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
+using System.Text;
+using Calcpad.Shared;
 
 namespace Calcpad.Wpf
 {
@@ -77,6 +79,33 @@ namespace Calcpad.Wpf
                 return new List<Template>();
             }
         }
+
+        public async Task<bool> LikeTemplate(string baseUrl, string fileName, string userPublicKey)
+        {
+            try
+            {
+                var likeRequest = new { UserPublicKey = userPublicKey };
+                var json = JsonSerializer.Serialize(likeRequest);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{baseUrl}/api/templates/{fileName}/like", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"❌ Like failed: {response.StatusCode}");
+                    return false;
+                }
+
+                Console.WriteLine($"👍 Successfully liked template {fileName}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error while sending like request: {ex.Message}");
+                return false;
+            }
+        }
+
 
         private bool IsJson(string content)
         {
@@ -179,5 +208,7 @@ namespace Calcpad.Wpf
                 return new List<Template>();
             }
         }
+    
+    
     }
 }

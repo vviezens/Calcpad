@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-
+using Calcpad.Shared;
 public class TemplateService
 {
     private readonly string _templatePath = Path.Combine("wwwroot", "templates");
@@ -14,8 +14,8 @@ public class TemplateService
         if (!Directory.Exists(_templatePath))
             Directory.CreateDirectory(_templatePath);
     }
-
-    public async Task SaveTemplateAsync(string fileName, object template)
+    /*
+    public async Task SaveTemplateAsync(string fileName, Template template)
     {
         string filePath = Path.Combine(_templatePath, fileName);
 
@@ -32,6 +32,18 @@ public class TemplateService
 
             string yaml = serializer.Serialize(template);
             await File.WriteAllTextAsync(filePath, yaml);
+        }
+    }
+    */
+
+    public async Task SaveTemplateAsync(string fileName, Template template)
+    {
+        string filePath = Path.Combine(_templatePath, fileName);
+
+        if (fileName.EndsWith(".json"))
+        {
+            string json = JsonSerializer.Serialize(template, new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(filePath, json);
         }
     }
 
