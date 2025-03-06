@@ -88,17 +88,10 @@
                                     <GridView>
                                         <GridViewColumn Header="Property" Width="150" DisplayMemberBinding="{Binding Key}"/>
                                         <GridViewColumn Header="Value" Width="220" DisplayMemberBinding="{Binding Value}"/>
-                                        <GridViewColumn Header="Actions" Width="110">
+                                        <GridViewColumn Header="Action" Width="50">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <!--<Button Content="👍" Width="30" Click="LikeTemplate_Click" Visibility="{Binding IsLikeButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>-->
-                                                        <!--<Button Content="✅" Width="30" Click="ValidateTemplate_Click" Visibility="{Binding IsValidateButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>-->
-                                                        <!--<Button Content="⚠️" Width="30" Click="MarkAsDeprecated_Click" Visibility="{Binding IsDeprecatedButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>-->
-                                                        <Button Content="👍" Width="30" />
-                                                        <Button Content="✅" Width="30" />
-                                                        <Button Content="⚠️" Width="30" />
-                                                    </StackPanel>
+                                                    <ContentPresenter Content="{Binding Action}"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>

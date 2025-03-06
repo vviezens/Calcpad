@@ -216,6 +216,7 @@ private List<ServerPath> LoadServersFromConfig()
             }
         }
 
+        /*
           private void AddTemplateToTree(string serverUrl, List<string> pathList, Template template)
         {
             if (!serverNodes.ContainsKey(serverUrl))
@@ -241,7 +242,92 @@ private List<ServerPath> LoadServersFromConfig()
             }
 
             // set whole template as tag!
-            var titleNode = new TreeViewItem { Header = template.Title, Tag = template };
+            var titleNode = new TreeViewItem { Header = template.Title+"Hier", Tag = template };
+            currentNode.Items.Add(titleNode);
+        }
+        */
+
+        private void AddTemplateToTree(string serverUrl, List<string> pathList, Template template)
+        {
+            if (!serverNodes.ContainsKey(serverUrl))
+            {
+                var serverNode = new TreeViewItem { Header = serverUrl, Tag = null };
+                TemplateTree.Items.Add(serverNode);
+                serverNodes[serverUrl] = new Dictionary<string, TreeViewItem> { { serverUrl, serverNode } };
+            }
+
+            var currentNode = serverNodes[serverUrl][serverUrl];
+            string currentPath = serverUrl;
+
+            foreach (var pathPart in pathList)
+            {
+                currentPath += $"/{pathPart}";
+                if (!serverNodes[serverUrl].ContainsKey(currentPath))
+                {
+                    var newNode = new TreeViewItem { Header = pathPart, Tag = null };
+                    currentNode.Items.Add(newNode);
+                    serverNodes[serverUrl][currentPath] = newNode;
+                }
+                currentNode = serverNodes[serverUrl][currentPath];
+            }
+
+            // Likes und Validierungen holen
+            int likes = template.Likes_total;
+            int validations = template.Validation_total;
+
+            // Rang bestimmen
+            string rank = "🥉 Bronze";
+            SolidColorBrush rankColor = Brushes.Gray;
+
+            if (likes >= 11 && validations >= 6)
+            {
+                rank = "🥈 Silber";
+                rankColor = Brushes.Blue;
+            }
+            if (likes >= 51 && validations >= 21)
+            {
+                rank = "🥇 Gold";
+                rankColor = Brushes.Orange;
+            }
+            if (likes >= 101 && validations >= 51)
+            {
+                rank = "💎 Platin";
+                rankColor = Brushes.Purple;
+            }
+            if (likes >= 501 && validations >= 101)
+            {
+                rank = "🔥 Legendär";
+                rankColor = Brushes.Red;
+            }
+
+            // TreeViewItem mit Farben & Rang setzen
+            var titleNode = new TreeViewItem
+            {
+                Tag = template
+            };
+
+            // StackPanel für farbigen Header
+            var stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+
+            // Rang-Label
+            var rankLabel = new Label
+            {
+                Content = rank,
+                Foreground = rankColor,
+                FontWeight = FontWeights.Bold
+            };
+
+            // Template-Name
+            var titleLabel = new Label
+            {
+                Content = $"{template.Title}  👍 {likes}  ✅ {validations}",
+                Foreground = Brushes.Black
+            };
+
+            stackPanel.Children.Add(rankLabel);
+            stackPanel.Children.Add(titleLabel);
+
+            titleNode.Header = stackPanel;
             currentNode.Items.Add(titleNode);
         }
 
@@ -251,19 +337,10 @@ private List<ServerPath> LoadServersFromConfig()
             if (template == null) return;
 
             MetadataList.Items.Clear();
+            Debug.WriteLine($"show metadata for: {template.Template_name}");
 
-            // Debugging: proof if template has been received correctly
-            Debug.WriteLine($"show metadata for: {template.Title}");
-
-            // Dictionary with all metadata
             var properties = new Dictionary<string, string>
     {
-        //{ "Title", template.Title },
-        //{ "Likes", template.Likes.ToString() },
-        //{ "Validations", template.Validations.ToString() },
-        //{ "Creator", template.Creator },
-        //{ "CreatedDate", template.CreatedDate },
-        //{ "Url", template.Url },
         { "id", template.Id },
         { "Template_name", template.Template_name },
         { "Version", template.Version },
@@ -273,22 +350,82 @@ private List<ServerPath> LoadServersFromConfig()
         { "Created_at", template.Created_at },
         { "Updated_at", template.Updated_at },
         { "Tags", Convert.ToString(template.Tags) },
-        { "Deprecated", template.Deprecated},
+        { "Deprecated", template.Deprecated },
         { "Deprecation_total_votes", Convert.ToString(template.Deprecation_total_votes) },
         { "Deprecation_total_votes_needed", Convert.ToString(template.Deprecation_votes_needed) },
         { "User_votes_user_ids", Convert.ToString(template.User_votes_user_ids) },
         { "User_votes_user_ids_weight", Convert.ToString(template.User_votes_user_ids_weight) },
         { "Likes_total", Convert.ToString(template.Likes_total) },
         { "Likes_users", Convert.ToString(template.Likes_users) },
-        { "Validation_total", Convert.ToString(template.Validation_total)},
-        { "Validation_user_ids", Convert.ToString(template.Validation_user_ids)},
-        { "Validation_signatures", Convert.ToString(template.Validation_signatures)},
+        { "Validation_total", Convert.ToString(template.Validation_total) },
+        { "Validation_user_ids", Convert.ToString(template.Validation_user_ids) },
+        { "Validation_signatures", Convert.ToString(template.Validation_signatures) },
         { "Hash", template.Hash },
     };
 
-            foreach (var property in properties)
+            // Definierte Reihenfolge der priorisierten Einträge
+            var prioritizedKeys = new List<string> { "Likes_total", "Validation_total", "Deprecation_total_votes" };
+
+            var sortedProperties = properties
+                .OrderBy(p => prioritizedKeys.Contains(p.Key) ? prioritizedKeys.IndexOf(p.Key) : int.MaxValue) // Feste Reihenfolge für priorisierte Keys
+                .ThenBy(p => p.Key) // Danach alphabetisch sortieren
+                .ToList();
+
+            foreach (var property in sortedProperties)
             {
-                MetadataList.Items.Add(new { Key = property.Key, Value = property.Value });
+                object valueDisplay = property.Value;
+                object actionDisplay = null; // Standardmäßig keine Aktion
+
+                if (prioritizedKeys.Contains(property.Key))
+                {
+                    var stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+
+                    if (property.Key == "Likes_total")
+                    {
+                        var likeButton = new Button
+                        {
+                            Content = "👍",
+                            Width = 30,
+                            Margin = new Thickness(5, 0, 5, 0),
+                            Visibility = Visibility.Visible,
+                            ToolTip = "Like the template! \n (templates with many likes will be listed on top \n ultra high rated templates can reach the hall of fame \n likes will be validated with your public key)"
+                        };
+                        likeButton.Click += LikeTemplate_Click;
+                        stackPanel.Children.Add(likeButton);
+                    }
+
+                    if (property.Key == "Validation_total")
+                    {
+                        var validateButton = new Button
+                        {
+                            Content = "✅",
+                            Width = 30,
+                            Margin = new Thickness(5, 0, 5, 0),
+                            Visibility = Visibility.Visible,
+                            ToolTip = "Validate correctness of template! \n (the correctness will be signed with your private key - optionally with your logo)"
+                        };
+                        validateButton.Click += ValidateTemplate_Click;
+                        stackPanel.Children.Add(validateButton);
+                    }
+
+                    if (property.Key == "Deprecation_total_votes")
+                    {
+                        var deprecatedButton = new Button
+                        {
+                            Content = "⚠️",
+                            Width = 30,
+                            Margin = new Thickness(5, 0, 5, 0),
+                            Visibility = Visibility.Visible,
+                            ToolTip = "Mark as deprecated! \n (if template reaches 5 deprecated marks \n it will not be listed anymore)"
+                        };
+                        deprecatedButton.Click += MarkAsDeprecated_Click;
+                        stackPanel.Children.Add(deprecatedButton);
+                    }
+
+                    actionDisplay = stackPanel;
+                }
+
+                MetadataList.Items.Add(new { Key = property.Key, Value = valueDisplay, Action = actionDisplay });
             }
         }
 
@@ -440,6 +577,85 @@ private List<ServerPath> LoadServersFromConfig()
         {
             // TODO: Hier Code für das Hochladen des Templates auf den Server hinzufügen
             MessageBox.Show("Template-Upload not implemented right now.");
+        }
+
+        private async void LikeTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            if (TemplateTree.SelectedItem is TreeViewItem selectedNode && selectedNode.Tag is Template template)
+            {
+                string userPublicKey = File.ReadAllText(PublicKeyPath);
+                if (string.IsNullOrEmpty(userPublicKey))
+                {
+                    MessageBox.Show("Public key not found. Please generate your key first!", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Prüfen, ob der User bereits geliked hat
+                if (template.Likes_users.Contains(userPublicKey))
+                {
+                    MessageBox.Show("You have already liked this template!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Like hinzufügen
+                template.Likes_total++;
+                template.Likes_users.Add(userPublicKey);
+
+                // Sicherstellen, dass Likes_total == Likes_users.Count
+                if (template.Likes_total != template.Likes_users.Count)
+                {
+                    MessageBox.Show("Data inconsistency detected! Possible corruption.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Server-Update mit TemplateServerUpdate
+                var serverUpdater = new TemplateServerUpdate("https://your-template-server.com"); // TODO: URL anpassen
+                bool success = await serverUpdater.LikeTemplate(template.Id, userPublicKey);
+
+                if (success)
+                {
+                    MessageBox.Show("Template liked successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    UpdateLikeButtonUI(selectedNode, userPublicKey);
+                }
+                else
+                {
+                    MessageBox.Show("Failed to update like on server.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a valid template!", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void UpdateLikeButtonUI(TreeViewItem selectedNode, string userPublicKey)
+{
+    if (selectedNode.Header is StackPanel stackPanel)
+    {
+        foreach (var child in stackPanel.Children)
+        {
+            if (child is Button likeButton && likeButton.Content.ToString() == "👍")
+            {
+                likeButton.Background = Brushes.LightGreen;
+                likeButton.ToolTip = "You already liked this template.";
+                break;
+            }
+        }
+    }
+}
+
+
+
+        private void ValidateTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Hier Code für das Hochladen des Templates auf den Server hinzufügen
+            MessageBox.Show("Validate_Click not implemented right now.");
+        }
+
+        private void MarkAsDeprecated_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Hier Code für das Hochladen des Templates auf den Server hinzufügen
+            MessageBox.Show("MarkAsDeprecated_Click not implemented right now.");
         }
 
         private void LoadPublicKey()
