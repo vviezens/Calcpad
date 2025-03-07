@@ -51,41 +51,67 @@ namespace Calcpad.Wpf
 
         }
 
-private List<ServerPath> LoadServersFromConfig()
-{
-    List<ServerPath> serverPaths = new List<ServerPath>();
-    string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TemplateServerConfig.csv");
-
-    if (!File.Exists(filePath))
-    {
-        Console.WriteLine("⚠️ Server config file not found - skip loading.");
-        return serverPaths; // return empty list
-    }
-
-    try
-    {
-        foreach (var line in File.ReadAllLines(filePath).Skip(1)) // skip first row (Header)
+        private List<ServerPath> LoadServersFromConfig()
         {
-            var parts = line.Split(',');
+            List<ServerPath> serverPaths = new List<ServerPath>();
+            string directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Calcpad");
+            string filePath = Path.Combine(directoryPath, "TemplateServerConfig.csv");
 
-                serverPaths.Add(new ServerPath
+            // Falls das Verzeichnis nicht existiert, erstelle es
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            // Falls die Datei nicht existiert, erstelle sie mit Standardwerten
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("⚠️ Server config file not found - creating default config.");
+                try
                 {
-                    ServerName = parts[0].Trim(),
-                    ServerUrl = parts[1].Trim(),
-                    Comment = parts[2].Trim()
-                });
-            
+                    string[] defaultConfig = {
+                "Server,Url,Comment,User,Password",
+                "server1,https://localhost:7085,comment1,admin,1234",
+                "server2,https://localhost:5001,comment2,admin,1234"
+            };
+                    File.WriteAllLines(filePath, defaultConfig);
+                    Console.WriteLine("✅ Default server config file created.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠️ Error creating the server config file: {ex.Message}");
+                    return serverPaths; // Rückgabe der leeren Liste, falls die Datei nicht erstellt werden kann
+                }
+            }
+
+            // Jetzt existiert die Datei sicher -> Server-Daten einlesen
+            try
+            {
+                foreach (var line in File.ReadAllLines(filePath).Skip(1)) // Erste Zeile überspringen (Header)
+                {
+                    var parts = line.Split(',');
+
+                    if (parts.Length >= 5) // Sicherstellen, dass genug Spalten vorhanden sind
+                    {
+                        serverPaths.Add(new ServerPath
+                        {
+                            ServerName = parts[0].Trim(),
+                            ServerUrl = parts[1].Trim(),
+                            Comment = parts[2].Trim(),
+                            User = parts[3].Trim(),
+                            Password = parts[4].Trim()
+                        });
+                    }
+                }
+                Console.WriteLine($"✅ {serverPaths.Count} server loaded successfully from config file.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error loading the server config file: {ex.Message}");
+            }
+
+            return serverPaths;
         }
-        Console.WriteLine($"✅ {serverPaths.Count} server loaded sucessfully from config file.");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"⚠️ Error loading the server config file: {ex.Message}");
-    }
-
-    return serverPaths;
-}
-
 
 
         private void LoadServerPaths()
@@ -460,14 +486,77 @@ private List<ServerPath> LoadServersFromConfig()
             }
         }
 
-        
+        /*
+        private void SaveServersToConfig()
+        {
+            string directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Calcpad");
+            string filePath = Path.Combine(directoryPath, "TemplateServerConfig.csv");
+
+            try
+            {
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                using (StreamWriter writer = new StreamWriter(filePath, false))
+                {
+                    writer.WriteLine("Server,Url,Comment"); // Header schreiben
+
+                    foreach (var server in serverPaths)
+                    {
+                        writer.WriteLine($"{server.ServerName},{server.ServerUrl},{server.Comment},{server.User},{server.Password}");
+                    }
+                }
+
+                Console.WriteLine("✅ Server config file updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error saving the server config file: {ex.Message}");
+            }
+        }
+        */
+
+        private void SaveServersToConfig()
+        {
+            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Calcpad\TemplateServerConfig.csv");
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(filePath, false))
+                {
+                    writer.WriteLine("Server,Url,Comment,Password"); // Header mit Passwort-Spalte
+
+                    foreach (var server in serverPaths)
+                    {
+                        writer.WriteLine($"{server.ServerName},{server.ServerUrl},{server.Comment},{server.User},{server.Password}");
+                    }
+                }
+
+                Console.WriteLine("✅ Server config file updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error saving the server config file: {ex.Message}");
+            }
+        }
 
 
 
         private void AddServer_Click(object sender, RoutedEventArgs e)
         {
             int newServerNumber = serverPaths.Count + 1;
-            serverPaths.Add(new ServerPath { ServerName = $"server{newServerNumber}", ServerUrl = "https://newserver.io", Comment = "Neuer Server" });
+            var newServer = new ServerPath
+            {
+                ServerName = $"server{newServerNumber}",
+                ServerUrl = "https://yoururl.io",
+                Comment = "Neuer Server",
+                User = "admin",
+                Password = "1234"
+            };
+
+            serverPaths.Add(newServer);
         }
 
         private void RemoveServer_Click(object sender, RoutedEventArgs e)
@@ -475,12 +564,33 @@ private List<ServerPath> LoadServersFromConfig()
             if (ServerListView.SelectedItem is ServerPath selectedServer)
             {
                 serverPaths.Remove(selectedServer);
+                SaveServersToConfig(); // Speichert die aktualisierte Liste nach dem Entfernen in die CSV
             }
             else
             {
                 MessageBox.Show("Please select the server you want to delete!");
             }
         }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is PasswordBox passwordBox)
+            {
+                if (passwordBox.DataContext is ServerPath serverPath)
+                {
+                    serverPath.Password = passwordBox.Password;
+                }
+            }
+        }
+
+        private void SaveServersToCsv_Click(object sender, RoutedEventArgs e)
+        {
+            SaveServersToConfig(); // Speichert alle Server inklusive Passwörter in die CSV
+        }
+
+
+
+
 
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
@@ -507,6 +617,10 @@ private List<ServerPath> LoadServersFromConfig()
             public string ServerName { get; set; }
             public string ServerUrl { get; set; }
             public string Comment { get; set; }
+
+            public string User { get; set; }
+
+            public string Password { get; set; }
 
             private string _serverStatus = "OFF";
             private Brush _statusColor = Brushes.Gray;

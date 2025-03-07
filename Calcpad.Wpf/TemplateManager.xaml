@@ -33,7 +33,7 @@
                                     <ListView x:Name="ServerListView" Margin="10" ItemsSource="{Binding serverPaths}" HorizontalAlignment="Stretch">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Header="Server" Width="50">
+                                                <GridViewColumn Header="Server" Width="45">
                                                     <GridViewColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding ServerName}" IsHitTestVisible="False" Opacity="0.7" Padding="0" Width="50"/>
@@ -54,13 +54,28 @@
                                                         </DataTemplate>
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
-                                                <GridViewColumn Header="Kommentar" Width="100">
+                                                <GridViewColumn Header="Comment" Width="60">
                                                     <GridViewColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Padding="0" MinWidth="95"/>
                                                         </DataTemplate>
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
+                                                <GridViewColumn Header="User" Width="60">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBox Text="{Binding User, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Padding="0" MinWidth="95"/>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Header="Password" Width="60">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <PasswordBox PasswordChar="*" Width="50" PasswordChanged="PasswordBox_PasswordChanged"/>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+
                                             </GridView>
                                         </ListView.View>
                                     </ListView>
@@ -69,6 +84,7 @@
                                     <Button Content="+" Width="30" Click="AddServer_Click"/>
                                     <Button Content="-" Width="30" Margin="5,0,0,0" Click="RemoveServer_Click"/>
                                     <Button Content="🔄 refresh servers" Width="120" Margin="10,0,0,0" Click="RefreshTemplates_Click"/>
+                                    <Button Content="💾 save" Width="50" Margin="10,0,0,0" Click="SaveServersToCsv_Click" ToolTip="Saves server list to C:\Users\username\AppData\Roaming\Calcpad\TemplateServerConfig.csv"/>
                                 </StackPanel>
                             </StackPanel>
                         </GroupBox>
