@@ -712,11 +712,13 @@ namespace Calcpad.Wpf
                 }
 
                 // Like hinzufügen
-                template.Likes_total++;
-                template.Likes_users.Add(userPublicKey);
+                //template.Likes_total++;
+                //template.Likes_users.Add(userPublicKey);
 
                 // Server-Update mit TemplateServerUpdate
-                var serverUpdater = new TemplateServerUpdate("https://your-template-server.com"); // URL anpassen
+                //var serverUpdater = new TemplateServerUpdate("https://your-template-server.com"); // URL anpassen
+                
+                /*
                 bool success = await serverUpdater.LikeTemplate(template.Id, userPublicKey);
 
                 if (success)
@@ -728,6 +730,7 @@ namespace Calcpad.Wpf
                 {
                     MessageBox.Show("Failed to update like on server.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                */
             }
             else
             {

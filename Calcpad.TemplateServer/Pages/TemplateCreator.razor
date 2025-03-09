@@ -1,0 +1,263 @@
+﻿@using Calcpad.Shared
+@using System.Text
+@using System.Security.Cryptography;
+@page "/template-creator"
+@inject HttpClient Http
+
+<h3>📝 Template Erstellen</h3>
+
+<EditForm Model="@template" OnValidSubmit="SubmitTemplate">
+    <DataAnnotationsValidator />
+
+    <div>
+        <label for="title">Title:</label>
+        <InputText id="title" @bind-Value="@template.Title" class="form-control" />
+    </div>
+
+    <div>
+        <label for="templateName">Template Name:</label>
+        <InputText id="templateName" @bind-Value="@template.Template_name" class="form-control" />
+    </div>
+
+    <div>
+        <label for="tags">Tags (Komma-separiert):</label>
+        <InputText id="tags" @bind-Value="@tagsInput" class="form-control" />
+    </div>
+
+    <div>
+        <label for="path">Path (Komma-separiert):</label>
+        <InputText id="path" @bind-Value="@pathInput" class="form-control" />
+    </div>
+
+    <div>
+        <label for="description">Description:</label>
+        <InputTextArea id="description" @bind-Value="@template.Description" class="form-control" />
+    </div>
+
+    <div>
+        <label for="author">Author Name:</label>
+        <InputText id="author" @bind-Value="@template.Author_name" class="form-control" />
+    </div>
+
+    <div>
+        <label for="publicKey">Author Public Key:</label>
+        <InputTextArea id="publicKey" @bind-Value="@template.Author_public_key" class="form-control" disabled />
+    </div>
+
+    <div>
+        <label for="privateKeyUpload">Private Key hochladen:</label>
+        <InputFile id="privateKeyUpload" OnChange="HandlePrivateKeyUpload" />
+    </div>
+
+    <div>
+        <p class="alert" style="color: @(isKeyValid ? "green" : "red")">
+            @keyValidationMessage
+        </p>
+        @if (!string.IsNullOrEmpty(computedPublicKey))
+        {
+            <p class="alert" style="color: blue">Errechneter Public Key: @computedPublicKey</p>
+        }
+    </div>
+
+    <div>
+        <label>Id (automatisch generiert):</label>
+        <InputText id="id" @bind-Value="@template.Id" class="form-control" disabled />
+    </div>
+
+    <div>
+        <label>Created at (automatisch gesetzt):</label>
+        <InputText id="createdAt" @bind-Value="@template.Created_at" class="form-control" disabled />
+    </div>
+
+    <div>
+        <label for="fileUpload">Template Datei hochladen (.cpd, .txt):</label>
+        <InputFile OnChange="HandleFileUpload" />
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@(!isKeyValid)">📤 Template speichern</button>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <p class="alert alert-info">@message</p>
+    }
+    </EditForm>
+
+    @code {
+    private Template template = new Template
+        {
+            Id = Guid.NewGuid().ToString(),
+            Created_at = DateTime.UtcNow.ToString("yyyyMMdd"),
+            Likes_total = 0,
+            Validation_total = 0,
+            Deprecated = "false",
+            Deprecation_total_votes = 0,
+            Deprecation_votes_needed = 5,
+            Likes_users = new List<string>(),
+            User_votes_user_ids = new List<string>(),
+            Validation_user_ids = new List<string>(),
+            Validation_signatures = new List<string>(),
+            Hash = "",
+            Content = "",
+            Title = "RC-Beam Calculator",
+            Template_name = "RC-Beam",
+            Description = "Simply Supported RC-Beam calculator, calculates needed reinforcement",
+            Author_name = "testguy",
+            Author_public_key = ""
+        };
+
+    private string tagsInput = "Structural Engineering, Concrete, DE";
+    private string pathInput = "Structural Engineering, Concrete, DE";
+    private string message = "";
+    private bool isKeyValid = false;
+    private string keyValidationMessage = "Bitte laden Sie einen privaten Schlüssel hoch.";
+    private string computedPublicKey = "";
+
+    private async Task HandlePrivateKeyUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+
+        using var stream = file.OpenReadStream();
+        using var reader = new StreamReader(stream);
+        string privateKeyPem = await reader.ReadToEndAsync();
+
+        await ValidateKeyPair(privateKeyPem);
+    }
+
+    private async Task ValidateKeyPair(string privateKeyBase64)
+    {
+        try
+        {
+            computedPublicKey = "";
+
+            // 🔄 Bereinige den Base64-String und dekodiere den Private Key
+            privateKeyBase64 = privateKeyBase64.Trim().Replace("\n", "").Replace("\r", "");
+            byte[] privateKeyBytes = Convert.FromBase64String(privateKeyBase64);
+
+            // 🛠️ Importiere den Private Key
+            using var rsa = RSA.Create();
+            rsa.ImportRSAPrivateKey(privateKeyBytes, out _);
+
+            // 🔑 Berechne den Public Key als PKCS1
+            computedPublicKey = GetPublicKeyAsBase64(rsa);
+
+            // 📥 Lade Public Keys aus pubkeys.json
+            var pubKeysData = await Http.GetFromJsonAsync<PubKeysData>("pubkeys/pubkeys.json");
+            if (pubKeysData == null || pubKeysData.PublicKeys == null)
+            {
+                keyValidationMessage = "⚠️ Fehler beim Laden der Public Keys.";
+                isKeyValid = false;
+                return;
+            }
+
+            // 🔄 Bereinige gespeicherte Public Keys
+            var normalizedPublicKeys = pubKeysData.PublicKeys
+                .Select(k => k.Trim().Replace("\n", "").Replace("\r", ""))
+                .ToList();
+
+            // ✅ Führe den Vergleich durch
+            isKeyValid = normalizedPublicKeys.Contains(computedPublicKey);
+
+            if (isKeyValid)
+            {
+                keyValidationMessage = "✅ KeyPaare passen zusammen!";
+                template.Author_public_key = computedPublicKey;
+            }
+            else
+            {
+                keyValidationMessage = $"❌ Kein passender Public Key gefunden!<br>Errechneter Public Key: {computedPublicKey}";
+
+                // 🛠️ Debugging: Hex-Vergleich der ersten 16 Bytes
+                Console.WriteLine("🔍 Byte-Vergleich fehlgeschlagen!");
+                Console.WriteLine($"🔑 Berechneter Public Key (HEX): {BitConverter.ToString(Convert.FromBase64String(computedPublicKey)).Substring(0, 50)}...");
+
+                foreach (var storedKey in normalizedPublicKeys)
+                {
+                    Console.WriteLine($"💾 Gespeicherter Public Key (HEX): {BitConverter.ToString(Convert.FromBase64String(storedKey)).Substring(0, 50)}...");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            computedPublicKey = "FEHLER BEI DER BERECHNUNG!";
+            keyValidationMessage = $"❌ Ungültiger Private Key! Fehler: {ex.Message}";
+            isKeyValid = false;
+        }
+    }
+
+    private string GetPublicKeyAsBase64(RSA rsa)
+    {
+        // 🔑 Exportiere den Public Key explizit im PKCS1-Format
+        byte[] publicKeyBytes = rsa.ExportRSAPublicKey();
+        return Convert.ToBase64String(publicKeyBytes);
+    }
+
+
+
+
+
+
+    private async Task HandleFileUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+
+        using var stream = file.OpenReadStream();
+        using var reader = new StreamReader(stream);
+        var content = await reader.ReadToEndAsync();
+
+        template.Content = EscapeForJson(content);
+        message = $"✅ Datei {file.Name} hochgeladen!";
+    }
+
+    private async Task SubmitTemplate()
+    {
+        if (!isKeyValid)
+        {
+            message = "⚠️ Der Private Key ist ungültig. Template kann nicht gespeichert werden.";
+            return;
+        }
+
+        template.Tags = tagsInput.Split(',').Select(t => t.Trim()).ToList();
+        template.Path = pathInput.Split(',').Select(p => p.Trim()).ToList();
+        template.Updated_at = template.Created_at;
+
+        string fileName = $"{template.Template_name}.json";
+
+        var response = await Http.PostAsJsonAsync($"api/templates/{fileName}", template);
+        message = response.IsSuccessStatusCode ? "🎉 Template erfolgreich gespeichert!" : "❌ Fehler beim Speichern!";
+    }
+
+    private string EscapeForJson(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return "";
+
+        var escaped = new StringBuilder();
+        foreach (char c in input)
+        {
+            switch (c)
+            {
+                case '\\': escaped.Append("\\\\"); break;
+                case '"': escaped.Append("\\\""); break;
+                case '\b': escaped.Append("\\b"); break;
+                case '\f': escaped.Append("\\f"); break;
+                case '\n': escaped.Append("\\n"); break;
+                case '\r': escaped.Append("\\r"); break;
+                case '\t': escaped.Append("\\t"); break;
+                default:
+                    if (char.IsControl(c))
+                        escaped.AppendFormat("\\u{0:X4}", (int)c);
+                    else
+                        escaped.Append(c);
+                    break;
+            }
+        }
+        return escaped.ToString();
+    }
+
+    public class PubKeysData
+    {
+        public List<string> PublicKeys { get; set; } = new();
+    }
+}

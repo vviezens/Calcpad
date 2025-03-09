@@ -1,0 +1,46 @@
+﻿@page "/template-pubkeys-viewer"
+@inject HttpClient Http
+
+<h3>🔑 Public Keys Viewer</h3>
+
+@if (pubKeys == null)
+{
+    <p>⏳ Lade Public Keys...</p>
+}
+else if (pubKeys.Count == 0)
+{
+    <p>⚠️ Keine Public Keys gefunden.</p>
+}
+else
+{
+    <ul>
+        @foreach (var key in pubKeys)
+        {
+            <li>
+                <pre>@key</pre>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<string> pubKeys = new();
+
+    private class PublicKeysWrapper
+    {
+        public List<string> Public_keys { get; set; } = new();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<PublicKeysWrapper>("pubkeys/pubkeys.json");
+            pubKeys = response?.Public_keys ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Fehler beim Laden der Public Keys: {ex.Message}");
+        }
+    }
+}

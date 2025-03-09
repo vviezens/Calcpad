@@ -77,6 +77,8 @@ public class TemplateController : ControllerBase
         return Ok(new { message = "Template successfully liked!", likes = templateData.Likes_total });
     }
 
+
+
     // Hilfsklasse für Like-Anfragen
     public class LikeRequest
     {

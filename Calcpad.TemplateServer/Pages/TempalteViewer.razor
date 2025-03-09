@@ -1,0 +1,49 @@
+﻿@page "/templates"
+@inject HttpClient Http
+
+<h3>📂 Template Viewer</h3>
+
+@if (templates == null)
+{
+    <p>⏳ Lade Templates...</p>
+}
+else if (templates.Count == 0)
+{
+    <p>⚠️ Keine Templates gefunden.</p>
+}
+else
+{
+    <ul>
+        @foreach (var template in templates)
+        {
+            <li>
+                <b>@template.Title</b>
+                (👍 @template.Likes, ✅ @template.Validations)
+                <ul>
+                    @foreach (var pathPart in template.Path)
+                    {
+                        <li>@pathPart</li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<TemplateData>? templates;
+
+    protected override async Task OnInitializedAsync()
+    {
+        templates = await Http.GetFromJsonAsync<List<TemplateData>>("api/templates/tree");
+    }
+
+    public class TemplateData
+    {
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public List<string> Path { get; set; }
+        public int Likes { get; set; }
+        public int Validations { get; set; }
+    }
+}

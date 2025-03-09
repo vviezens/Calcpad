@@ -80,6 +80,8 @@ namespace Calcpad.Wpf
             }
         }
 
+
+        /*
         public async Task<bool> LikeTemplate(string baseUrl, string fileName, string userPublicKey)
         {
             try
@@ -105,7 +107,7 @@ namespace Calcpad.Wpf
                 return false;
             }
         }
-
+        */
 
         private bool IsJson(string content)
         {
