@@ -1,49 +1,73 @@
 ﻿@page "/template-viewer"
 @inject HttpClient Http
+@using Calcpad.TemplateServer.Models
+@using Calcpad.TemplateServer.Components
 
 <h3>📂 Template Viewer</h3>
 
-@if (templates == null)
+@if (treeNodes == null)
 {
     <p>⏳ Lade Templates...</p>
 }
-else if (templates.Count == 0)
+else if (treeNodes.Count == 0)
 {
     <p>⚠️ Keine Templates gefunden.</p>
 }
 else
 {
-    <ul>
-        @foreach (var template in templates)
-        {
-            <li>
-                <b>@template.Title</b>
-                (👍 @template.Likes, ✅ @template.Validations)
-                <ul>
-                    @foreach (var pathPart in template.Path)
-                    {
-                        <li>@pathPart</li>
-                    }
-                </ul>
-            </li>
-        }
-    </ul>
+    <p>✔️ Anzahl Templates: @treeNodes.Count</p>
+    <TreeView Nodes="treeNodes" />
 }
 
 @code {
-    private List<TemplateData>? templates;
+    private List<TreeNode> treeNodes = new();
 
     protected override async Task OnInitializedAsync()
     {
-        templates = await Http.GetFromJsonAsync<List<TemplateData>>("api/templates/tree");
+        try
+        {
+            // Lade die API-Daten (TreeNode-Daten).
+            var apiData = await Http.GetFromJsonAsync<List<TreeNode>>("api/templates/tree");
+
+            if (apiData == null || !apiData.Any())
+            {
+                Console.WriteLine("❌ API hat NULL oder leere Daten zurückgegeben!");
+                return;
+            }
+
+            // Baue den Baum aus der API-Antwort.
+            treeNodes = BuildTreeFromApiResponse(apiData);
+
+            Console.WriteLine($"✔️ {treeNodes.Count} Templates geladen.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Fehler beim Laden der Templates: {ex.Message}");
+        }
     }
 
-    public class TemplateData
+    // Methode zur Rekursion von Knoten
+    private List<TreeNode> BuildTreeFromApiResponse(List<TreeNode> apiData)
     {
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public List<string> Path { get; set; }
-        public int Likes { get; set; }
-        public int Validations { get; set; }
+        var rootNodes = new List<TreeNode>();
+
+        foreach (var node in apiData)
+        {
+            var treeNode = new TreeNode(node.Name);
+            BuildChildren(node, treeNode);
+            rootNodes.Add(treeNode);
+        }
+
+        return rootNodes;
+    }
+
+    private void BuildChildren(TreeNode apiNode, TreeNode treeNode)
+    {
+        foreach (var child in apiNode.Children)
+        {
+            var childNode = new TreeNode(child.Name);
+            treeNode.Children.Add(childNode);
+            BuildChildren(child, childNode); // Rekursiv alle Kinder hinzufügen
+        }
     }
 }

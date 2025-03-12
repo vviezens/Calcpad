@@ -9,6 +9,7 @@ using Calcpad.Shared;
 public class TemplateController : ControllerBase
 {
     private readonly TemplateService _templateService;
+    private readonly string templatePath = "wwwroot/templates"; // Verzeichnis mit JSON-Dateien
 
     public TemplateController(TemplateService templateService)
     {
@@ -77,13 +78,72 @@ public class TemplateController : ControllerBase
         return Ok(new { message = "Template successfully liked!", likes = templateData.Likes_total });
     }
 
+    [HttpGet("tree")]
+    public async Task<IActionResult> GetTemplateTree()
+    {
+        if (!Directory.Exists(templatePath))
+        {
+            return NotFound("Template-Verzeichnis nicht gefunden.");
+        }
 
+        var tree = new TreeNode("Root"); // Der "Root"-Node dient nur als Wurzel, um den Baum zu organisieren.
 
-    // Hilfsklasse für Like-Anfragen
-    public class LikeRequest
+        foreach (var file in Directory.GetFiles(templatePath, "*.json"))
+        {
+            var jsonString = await System.IO.File.ReadAllTextAsync(file);
+            var template = JsonSerializer.Deserialize<TemplateData>(jsonString);
+
+            if (template != null && template.Path != null && template.Title != null)
+            {
+                tree.AddPath(template.Path, template.Title); // Füge das Template zur Baumstruktur hinzu
+            }
+        }
+
+        return Ok(tree.Children); // Rückgabe nur der direkten Kinder des Root-Nodes
+    }
+
+}
+
+// Model für die JSON-Dateien
+public class TemplateData
+{
+    public List<string> Path { get; set; }
+    public string Title { get; set; }
+}
+
+// Baumstruktur-Klasse
+public class TreeNode
+{
+    public string Name { get; set; }
+    public List<TreeNode> Children { get; set; } = new List<TreeNode>();
+
+    public TreeNode(string name)
+    {
+        Name = name;
+    }
+
+    public void AddPath(List<string> path, string title)
+    {
+        var currentNode = this;
+        foreach (var part in path)
+        {
+            var existingNode = currentNode.Children.FirstOrDefault(n => n.Name == part);
+            if (existingNode == null)
+            {
+                existingNode = new TreeNode(part);
+                currentNode.Children.Add(existingNode);
+            }
+            currentNode = existingNode;
+        }
+        currentNode.Children.Add(new TreeNode(title)); // Letzter Knoten = Title
+    }
+}
+
+// Hilfsklasse für Like-Anfragen
+public class LikeRequest
     {
         public string UserPublicKey { get; set; }
     }
 
-}
+
 

@@ -1,0 +1,38 @@
+{
+  "Tags": [ "Structural Engineering", "Timber", "DE" ],
+  "Path": [ "Structural Engineering", "Steel", "DE", "Profile" ],
+  "Template_name": "IPE Profiles Dummy",
+  "Title": "IPE Dummy",
+  "Id": "6d51e388-8fbd-4b9a-a865-4dfd4ed4d74b",
+  "Version": "1.0",
+  "Description": "Dummy Profile Series",
+  "Author_name": "J. Doe",
+  "Author_public_key": "MIIBCgKCAQEA7xyZm7tZtR3cJgFp3cktr6Krdmj8V0yXitWrdx56LHgKM7Knx7gcnZT24AqHg2A8cm7sTX2vBgbbyREIBjNNZfOxeJw5DJ2yqt9+gx/9Qf2nlD6mfBDUSwpjLfABFntU7fVV91eUGzQISjrMUKyDWXl9hKmrQmn0hPyHecRcmnKP1DCZ38l1i3lFZeqBGauY5u7r9wulC6zK0WzXU9BjtkaZhgi62qScLsytdbw7cb6jmtz5yMDEm3jS5bdx+TZH03kp7eeIxnFNXvf1cHroQbBfB7G+0wAtY1ctfnvVtQQtPXMk+oxgDpJb8JjWGeJOW2fjyCTlxVdrl69olpwfOt+dLw0wIDAQAB",
+  "Created_at": "20250301",
+  "Updated_at": "20250305",
+  "Deprecated": "false",
+  "Deprecation_total_votes": 0,
+  "Deprecation_votes_needed": 5,
+  "User_votes_user_ids": [
+    "MIIBCgKCAQEA3z6Jn7mSU8cmgIkQuYQ7cjBvlswKzLDi2n637tOYtsxpdZ8rBsHMCuRoY+r5A+1VHASIK84MGEck2s+oOx4i5pcNtuh56WkzTv0zzIU/L6fruup2i97it09swNMV7DB8KjWwEYB0HeXlxwirvH4UERK90p3XOXUtag1xSXTPJd4pkalR7wZapqF2YzFVJLbkrxolw+4AJpjxew3YwZrnuELD+23X11H+u8JNbAMfGLfUiPSCpb+aI0wBHd4oQk0oximpT7tcQzMC8pmzCdgQt/hHNtjEtrHLz6t+U9nV+q+xfqvfIztCCKYCltuCQtmsRQBzSE6EQ9G/jJ3SleIzPQIDAQAB"
+  ],
+  "Likes_total": 5,
+  "Likes_users": [
+    "MIIBCgKCAQEA7xyZm7tZtR3cJgFp3cktr6Krdmj8V0yXitWrdx56LHgKM7Knx7gcnZT24AqHg2A8cm7sTX2vBgbbyREIBjNNZfOxeJw5DJ2yqt9+gx/9Qf2nlD6mfBDUSwpjLfABFntU7fVV91eUGzQISjrMUKyDWXl9hKmrQmn0hPyHecRcmnKP1DCZ38l1i3lFZeqBGauY5u7r9wulC6zK0WzXU9BjtkaZhgi62qScLsytdbw7cb6jmtz5yMDEm3jS5bdx+TZH03kp7eeIxnFNXvf1cHroQbBfB7G+0wAtY1ctfnvVtQQtPXMk+oxgDpJb8JjWGeJOW2fjyCTlxVdrl69olpwfOt+dLw0wIDAQAB"
+  ],
+  "Validation_total": 3,
+  "Validation_user_ids": [
+    "MIIBCgKCAQEA7xyZm7tZtR3cJgFp3cktr6Krdmj8V0yXitWrdx56LHgKM7Knx7gcnZT24AqHg2A8cm7sTX2vBgbbyREIBjNNZfOxeJw5DJ2yqt9+gx/9Qf2nlD6mfBDUSwpjLfABFntU7fVV91eUGzQISjrMUKyDWXl9hKmrQmn0hPyHecRcmnKP1DCZ38l1i3lFZeqBGauY5u7r9wulC6zK0WzXU9BjtkaZhgi62qScLsytdbw7cb6jmtz5yMDEm3jS5bdx+TZH03kp7eeIxnFNXvf1cHroQbBfB7G+0wAtY1ctfnvVtQQtPXMk+oxgDpJb8JjWGeJOW2fjyCTlxVdrl69olpwfOt+dLw0wIDAQAB"
+  ],
+  "Validation_signatures": [ "dummySig1", "dummySig2" ],
+  "Hash": "dummyHash123456",
+  "Validations": 5,
+  "Creator": "John Smith",
+  "Authors": [ "John Smith", "Jane Doe" ],
+  "CreatedDate": "01.01.2025",
+  "Url": "https://TemplateServer2/Material/Timber/dummy_example",
+  "ValidatorHashes": [ "dummyHash1", "dummyHash2" ],
+  "ValidatorLogos": [ "dummyLogo1Base64", "dummyLogo2Base64" ],
+  "ValidatorContact": "contact@template.com",
+  "Content": "$DummyPlot{x^3+2 @ x = -10 : 10}"
+}

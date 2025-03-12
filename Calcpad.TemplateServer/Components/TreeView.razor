@@ -1,0 +1,34 @@
+﻿@using Calcpad.TemplateServer.Models
+
+@code {
+    [Parameter] public List<TreeNode> Nodes { get; set; } = new();
+
+    private HashSet<TreeNode> expandedNodes = new();
+
+    void Toggle(TreeNode node)
+    {
+        if (expandedNodes.Contains(node))
+            expandedNodes.Remove(node);
+        else
+            expandedNodes.Add(node);
+    }
+}
+
+<ul>
+    @foreach (var node in Nodes)
+    {
+        <li>
+            @if (node.Children.Any())
+            {
+                <button @onclick="() => Toggle(node)">
+                    @(expandedNodes.Contains(node) ? "🔽" : "▶️")
+                </button>
+            }
+            @node.Name
+            @if (expandedNodes.Contains(node) && node.Children.Any())
+            {
+                <TreeView Nodes="node.Children" />
+            }
+        </li>
+    }
+</ul>
